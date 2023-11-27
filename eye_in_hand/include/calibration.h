@@ -3,7 +3,6 @@
 
 #include <aruco.h>
 #include <cvdrawingutils.h>
-
 #include <time.h>
 #include <ur_rtde/rtde_control_interface.h>
 #include <ur_rtde/rtde_receive_interface.h>
@@ -12,6 +11,7 @@
 #include <opencv2/calib3d.hpp>
 #include <vector>
 
+#include "cnpy.h"
 #include "log_wrapper.h"
 #include "realsense.h"
 
@@ -32,6 +32,8 @@ class HandEyeCalibration {
   ///\brief run calibration
   void RunCalibration();
 
+  void RunCalibration2();
+
   ///\brief get the homogeneous matrix that transforms a point expressed in the
   /// camera frame to the gripper frame
   void get_calibration_result();
@@ -43,19 +45,14 @@ class HandEyeCalibration {
   void RotateTest();
 
  private:
-  void InverseRotation(cv::Mat& inputRotation, cv::Mat& outputRotation);
   int random(int x);
-  bool isRotationMatrix(const cv::Mat& R);
   void vector2matrix(cv::Mat& rvec, cv::Mat& rmatrix);
-  void inverseMatrix(cv::Mat& rvec, cv::Mat& tvec, cv::Mat& rmatrix,
-                     cv::Mat& tmatrix);
-  bool invert(cv::Mat& m1, cv::Mat& m2);
 
   std::ofstream outputFile1, outputFile2, outputFile3, outputFile4;
   int cnt = 0;
   driver::Realsense rs;
   double chess_length = 0.0265;  // 2.6cm
-  double grid_length = 0.08;
+  double grid_length = 0.04;
 
   ur_rtde::RTDEReceiveInterface rtde_receive_;
   ur_rtde::RTDEControlInterface rtde_control_;

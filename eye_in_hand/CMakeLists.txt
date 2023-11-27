@@ -33,6 +33,7 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/ur_rtde/include/urcl
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/include/fractallabelers
+    ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/include
 )
 
 message("realsense include dirs: " ${RealsenseSDK_INCLUDE_DIRS})
@@ -45,7 +46,7 @@ target_link_libraries(CalibrationCommon ${PCL_LIBRARIES}
                                         ${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/ur_rtde/lib/librtde.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/lib/libaruco.so
-                                        )
+                                        ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/lib/libcnpy.so)
 
 add_executable(test_calibration test/test_calibration.cpp)
 target_link_libraries(test_calibration CalibrationCommon)

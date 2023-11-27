@@ -5,7 +5,7 @@ int main() {
   calibration::HandEyeCalibration calibrate;
   // calibrate.AddCameraPose2();
 
-  calibrate.RunCalibration();
+  calibrate.RunCalibration2();
 
   // bool flag1 = calibrate.teachMode();
   // std::cout << "open tech mode: " << flag1 << std::endl;
@@ -15,7 +15,6 @@ int main() {
 //   calibrate.RotateTest();
 
   
-
 
 
   return 0;
