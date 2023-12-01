@@ -20,14 +20,14 @@ namespace calibration {
 class HandEyeCalibration {
  public:
   HandEyeCalibration();
+
   ~HandEyeCalibration();
+
   ///\brief add pose expressed in the gripper frame to the robot base frame
   void AddRobotPose();
 
   ///\brief add pose expressed in the target frame to the camera frame
   void AddCameraPose();
-
-  void AddCameraPose2();
 
   ///\brief run calibration
   void RunCalibration();
@@ -38,30 +38,37 @@ class HandEyeCalibration {
   /// camera frame to the gripper frame
   void get_calibration_result();
 
-  bool teachMode();
+  bool TeachMode();
 
-  bool endTeachMode();
-
-  void RotateTest();
+  bool EndTeachMode();
 
  private:
-  int random(int x);
   void vector2matrix(cv::Mat& rvec, cv::Mat& rmatrix);
 
-  std::ofstream outputFile1, outputFile2, outputFile3, outputFile4;
-  int cnt = 0;
-  driver::Realsense rs;
-  double chess_length = 0.0265;  // 2.6cm
-  double grid_length = 0.04;
+  void AddPositions();
 
-  ur_rtde::RTDEReceiveInterface rtde_receive_;
-  ur_rtde::RTDEControlInterface rtde_control_;
+  void EstimateReproError(cv::Mat& tvec, cv::Mat& rvec, cv::Mat& camera_matrix);
+
+  std::vector<double> update(const std::vector<double>& current_pose,
+                             Eigen::Vector3d& delta);
+
+  driver::Realsense rs;
+  std::string ip = "192.168.16.100";
+
+  int cnt = 0;
+  double marker_size = 0.134;
+  double angle_delta = 5;
+  double translation_delta = 0.10;
+
+  // ur_rtde::RTDEReceiveInterface rtde_receive_;
+  // ur_rtde::RTDEControlInterface rtde_control_;
 
   std::vector<double> current_pose_;
   std::vector<cv::Mat> robot_rotation_;
   std::vector<cv::Mat> robot_translation_;
   std::vector<cv::Mat> camera_rotation_;
   std::vector<cv::Mat> camera_translation_;
+  std::vector<std::vector<double>> positions;
   cv::Mat calibration_rotation_;
   cv::Mat calibration_translation_;
 };
