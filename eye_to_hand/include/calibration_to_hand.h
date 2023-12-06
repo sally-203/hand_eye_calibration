@@ -1,5 +1,5 @@
-#ifndef EYE_IN_HAND_CALIBRATION_H
-#define EYE_IN_HAND_CALIBRATION_H
+#ifndef EYE_TO_HAND_CALIBRATION_H
+#define EYE_TO_HAND_CALIBRATION_H
 
 #include <aruco.h>
 #include <cvdrawingutils.h>
@@ -11,32 +11,28 @@
 #include <opencv2/calib3d.hpp>
 #include <vector>
 
-#include "cnpy.h"
 #include "log_wrapper.h"
-
-#include "obsensor.h"
-#include "realsense.h"
-
+#include "mechmind.h"
 
 ///==================不要忘记修改marker_size!!!!!=========================
 namespace calibration {
 
-class EyeInHandCalibration {
+class EyeToHandCalibration {
  public:
-  EyeInHandCalibration();
+  EyeToHandCalibration();
 
-  ~EyeInHandCalibration();
+  ~EyeToHandCalibration();
 
   ///\brief add pose expressed in the gripper frame to the robot base frame
   void AddRobotPose();
+
+  void AddRobotPose2();
 
   ///\brief add pose expressed in the target frame to the camera frame
   void AddCameraPose();
 
   ///\brief run calibration
   void RunCalibration();
-
-  void RunCalibration2();
 
   ///\brief get the homogeneous matrix that transforms a point expressed in the
   /// camera frame to the gripper frame
@@ -51,16 +47,15 @@ class EyeInHandCalibration {
 
   void AddPositions();
 
-  void EstimateReproError(aruco::Marker& marker, cv::Mat& camera_matrix,
-                          cv::Mat& dist_coeffs);
+  void EstimateReproError(aruco::Marker& marker, cv::Mat& camera_matrix, cv::Mat& dist_coeffs);
 
   std::vector<double> update(const std::vector<double>& current_pose,
                              Eigen::Vector3d& delta);
-
-  driver::Realsense rs;
-  driver::Obsensor obs;
-
-  std::string ip = "192.168.16.100";
+  // #ifdef mechmind
+    driver::MechMind camera;
+  // #endif
+  
+  std::string ip = "192.168.1.100";
 
   int cnt = 0;
   double marker_size = 0.140;

@@ -1,4 +1,6 @@
 PROJECT(eye_in_hand)
+# option(realsense "realsense" on)
+# option(obsensor "obsensor" on)
 
 set(CONTROL_INTERFACE_PATH "/home/xlh/work/projects/control_interface/control_interface")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -22,11 +24,22 @@ if(OpenCV_FOUND)
 endif()
 
 list(APPEND CMAKE_MODULE_PATH "/home/xlh/work/projects/control_interface/control_interface/cmake/deps")
-find_package(RealsenseSDK REQUIRED)
+
+# if(realsense)
+    message("open realsense")
+    find_package(RealsenseSDK REQUIRED)
+    include_directories(${RealsenseSDK_INCLUDE_DIRS})
+    link_libraries(${RealsenseSDK_LIBRARIES})
+# endif()
+# if(obsensor)
+    message("open obsensor")
+    find_package(ObsensorSDK REQUIRED)
+    include_directories(${ObsensorSDK_INCLUDE_DIRS})
+    link_libraries(${ObsensorSDK_LIBRARIES})
+# endif()
 
 include_directories(
     include
-    ${RealsenseSDK_INCLUDE_DIRS}
     ${CONTROL_INTERFACE_PATH}/util/include
     ${CONTROL_INTERFACE_PATH}/util/third_parties
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/ur_rtde/include/ur_rtde
@@ -36,19 +49,18 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/include
 )
 
-message("realsense include dirs: " ${RealsenseSDK_INCLUDE_DIRS})
 link_libraries(${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so)
 
-add_library(CalibrationCommon SHARED src/calibration.cpp)
-target_link_libraries(CalibrationCommon ${PCL_LIBRARIES} 
+add_library(EyeInHandCalibrationCommon SHARED src/calibration.cpp)
+
+target_link_libraries(EyeInHandCalibrationCommon ${PCL_LIBRARIES} 
                                         ${OpenCV_LIBRARIES}
-                                        ${RealsenseSDK_LIBRARIES}
                                         ${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/ur_rtde/lib/librtde.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/lib/libaruco.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/lib/libcnpy.so)
 
 add_executable(test_calibration test/test_calibration.cpp)
-target_link_libraries(test_calibration CalibrationCommon)
+target_link_libraries(test_calibration EyeInHandCalibrationCommon)
 
 
