@@ -101,7 +101,7 @@ void EyeInHandCalibration::AddCameraPose() {
       break;
   }
   mDetector.setDetectionMode(aruco::DM_VIDEO_FAST, min_marker_size);
-  mDetector.loadParamsFromFile("/home/xlh/work/dataset/params.txt");
+  mDetector.loadParamsFromFile("../../params.txt");
 
   // calculate pose
   std::vector<aruco::Marker> markers;

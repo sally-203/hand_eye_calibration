@@ -1,5 +1,4 @@
 #include "calibration_to_hand.h"
-
 #include <opencv2/highgui.hpp>
 
 namespace calibration {
@@ -25,7 +24,6 @@ void EyeToHandCalibration::AddCameraPose() {
 
 #ifdef mechmind
   camera.GetColorImage(color_image);
-  std::cout << "MECHMIND ON....." << std::endl;
 #endif
 
   cv::imshow("image", color_image);
@@ -65,7 +63,7 @@ void EyeToHandCalibration::AddCameraPose() {
       break;
   }
   mDetector.setDetectionMode(aruco::DM_VIDEO_FAST, min_marker_size);
-  mDetector.loadParamsFromFile("/home/xlh/work/dataset/params.txt");
+  mDetector.loadParamsFromFile("../../params.txt");
 
   // calculate pose
   std::vector<aruco::Marker> markers;

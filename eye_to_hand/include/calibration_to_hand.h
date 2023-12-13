@@ -12,9 +12,12 @@
 #include <vector>
 
 #include "log_wrapper.h"
-#include "mechmind.h"
 
-///==================不要忘记修改marker_size!!!!!=========================
+#ifdef mechmind
+  #include "mechmind.h"
+#endif
+
+//==================不要忘记修改marker_size!!!!!=========================
 namespace calibration {
 
 class EyeToHandCalibration {
@@ -51,9 +54,9 @@ class EyeToHandCalibration {
 
   std::vector<double> update(const std::vector<double>& current_pose,
                              Eigen::Vector3d& delta);
-  // #ifdef mechmind
+  #ifdef mechmind
     driver::MechMind camera;
-  // #endif
+  #endif
   
   std::string ip = "192.168.1.100";
 

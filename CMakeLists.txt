@@ -6,7 +6,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 message("${CMAKE_BUILD_TYPE}")
 if("${CMAKE_BUILD_TYPE}" STREQUAL "")
-    set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type default to Debug, set to Release if needed" FORCE)
+    # set(CMAKE_BUILD_TYPE Debug CACHE STRING "Build type default to Debug, set to Release if needed" FORCE)
     option(CMAKE_EXPORT_COMPILE_COMMANDS "Generate compile commands" on)
 endif()
 
@@ -20,6 +20,7 @@ endif()
 
 option(BUILD_EYE_IN_HAND_FLAG "build eye-in-hand module" off)
 if(BUILD_EYE_IN_HAND_FLAG)
+    message("!!!! BUILD_EYE_IN_HAND_FLAG")
     add_subdirectory(eye_in_hand)
 endif()
 

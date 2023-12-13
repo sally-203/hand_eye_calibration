@@ -14,11 +14,15 @@
 #include "cnpy.h"
 #include "log_wrapper.h"
 
-#include "obsensor.h"
-#include "realsense.h"
+#ifdef obsensor
+  #include "obsensor.h"
+#endif 
 
+#ifdef realsense
+  #include "realsense.h"
+#endif
 
-///==================不要忘记修改marker_size!!!!!=========================
+//==================不要忘记修改marker_size!!!!!=========================
 namespace calibration {
 
 class EyeInHandCalibration {
@@ -56,9 +60,13 @@ class EyeInHandCalibration {
 
   std::vector<double> update(const std::vector<double>& current_pose,
                              Eigen::Vector3d& delta);
-
+#ifdef realsense
   driver::Realsense rs;
+#endif
+
+#ifdef obsensor
   driver::Obsensor obs;
+#endif
 
   std::string ip = "192.168.16.100";
 

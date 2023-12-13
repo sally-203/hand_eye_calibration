@@ -1,6 +1,6 @@
 PROJECT(eye_in_hand)
-# option(realsense "realsense" on)
-# option(obsensor "obsensor" on)
+option(realsense "realsense" off)
+option(obsensor "obsensor" on)
 
 set(CONTROL_INTERFACE_PATH "/home/xlh/work/projects/control_interface/control_interface")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -25,18 +25,18 @@ endif()
 
 list(APPEND CMAKE_MODULE_PATH "/home/xlh/work/projects/control_interface/control_interface/cmake/deps")
 
-# if(realsense)
-    message("open realsense")
+if(realsense)
+    message("--------------- open realsense")
     find_package(RealsenseSDK REQUIRED)
     include_directories(${RealsenseSDK_INCLUDE_DIRS})
     link_libraries(${RealsenseSDK_LIBRARIES})
-# endif()
-# if(obsensor)
-    message("open obsensor")
+endif()
+if(obsensor)  
+    message("--------------- open obsensor")
     find_package(ObsensorSDK REQUIRED)
     include_directories(${ObsensorSDK_INCLUDE_DIRS})
     link_libraries(${ObsensorSDK_LIBRARIES})
-# endif()
+endif()
 
 include_directories(
     include
