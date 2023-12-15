@@ -1,10 +1,14 @@
 #include "calibration_to_hand.h"
+
 #include <opencv2/highgui.hpp>
 
 namespace calibration {
 
-EyeToHandCalibration::EyeToHandCalibration()
-    : rtde_receive_(ip), rtde_control_(ip) {
+EyeToHandCalibration::EyeToHandCalibration(double init_marker_size,
+                                           std::string init_ip)
+    : marker_size(init_marker_size),
+      rtde_receive_(init_ip),
+      rtde_control_(init_ip) {
 // open camera
 #ifdef mechmind
   camera.ConnectToCamera();
@@ -250,18 +254,13 @@ std::vector<double> EyeToHandCalibration::update(
 
   // vector<double>--->Eigen::Isometry3d
   Eigen::Isometry3d transform = Eigen::Isometry3d::Identity();
-  // transform.translation() << current_pose[0], current_pose[1],
-  // current_pose[2];
+
   Eigen::Matrix3d rotation;
-  // rotation = Eigen::AngleAxisd(current_pose[3], Eigen::Vector3d::UnitX()) *
-  //            Eigen::AngleAxisd(current_pose[4], Eigen::Vector3d::UnitY()) *
-  //            Eigen::AngleAxisd(current_pose[5], Eigen::Vector3d::UnitZ());
   Eigen::Vector3d v(current_pose[3], current_pose[4], current_pose[5]);
   Eigen::AngleAxisd ra(v.norm(), v.normalized());
   rotation = ra.matrix();
   transform.linear() = rotation;
 
-  // std::cout << delta << std::endl;
   // Eigen::Isometry3d--->rotate
   transform.rotate(
       Eigen::AngleAxisd(delta[0] * M_PI / 180, Eigen::Vector3d::UnitX()));
@@ -310,8 +309,7 @@ bool EyeToHandCalibration::TeachMode() {
   for (int i = 0; i < current_pose.size(); i++) {
     std::cout << current_pose[i] << " " << std::endl;
   }
-  bool flag = false;
-  // bool flag = rtde_control_.teachMode();
+  bool flag = rtde_control_.teachMode();
   return flag;
 }
 

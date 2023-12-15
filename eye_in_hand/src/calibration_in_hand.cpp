@@ -1,29 +1,31 @@
-#include "calibration.h"
+#include "calibration_in_hand.h"
 
 #include <opencv2/core/eigen.hpp>
 #include <opencv2/highgui.hpp>
 
 namespace calibration {
 
-EyeInHandCalibration::EyeInHandCalibration()
-    : rtde_receive_(ip), rtde_control_(ip) {
-  // open camera
-  #ifdef realsense
-    rs.StartCamera();
-  #endif
-  #ifdef obsensor
-    obs.StartCamera();
-  #endif
-  
+EyeInHandCalibration::EyeInHandCalibration(double init_marker_size,
+                                           std::string init_ip)
+    : marker_size(init_marker_size),
+      rtde_receive_(init_ip),
+      rtde_control_(init_ip) {
+// open camera
+#ifdef realsense
+  rs.StartCamera();
+#endif
+#ifdef obsensor
+  obs.StartCamera();
+#endif
 }
 
 EyeInHandCalibration::~EyeInHandCalibration() {
-  #ifdef realsense
-    rs.CloseCamera();
-  #endif
-  #ifdef obsensor
-    obs.CloseCamera();
-  #endif
+#ifdef realsense
+  rs.CloseCamera();
+#endif
+#ifdef obsensor
+  obs.CloseCamera();
+#endif
 }
 
 void EyeInHandCalibration::AddRobotPose() {
@@ -48,12 +50,12 @@ void EyeInHandCalibration::AddRobotPose() {
 void EyeInHandCalibration::AddCameraPose() {
   // get realsense image
   cv::Mat color_image;
-  #ifdef realsense
-   rs.get_color_image_(color_image);
-  #endif
-  #ifdef obsensor
-    obs.get_color_image(color_image);
-  #endif
+#ifdef realsense
+  rs.get_color_image_(color_image);
+#endif
+#ifdef obsensor
+  obs.get_color_image(color_image);
+#endif
 
   // cv::imwrite("./color_image.png", color_image);
   // color_image = cv::imread("./color_image.png");
@@ -65,16 +67,16 @@ void EyeInHandCalibration::AddCameraPose() {
   std::vector<double> color_intrinsics;
   std::vector<double> distortion_coeffs;
 
-  #ifdef realsense
-   rs.get_color_intrinsics(color_intrinsics);
-   rs.get_distortion_coeffs(distortion_coeffs);
-  #endif
+#ifdef realsense
+  rs.get_color_intrinsics(color_intrinsics);
+  rs.get_distortion_coeffs(distortion_coeffs);
+#endif
 
-  #ifdef obsensor
-    obs.get_rgb_intrinsics(color_intrinsics);
-    obs.get_rgb_distortion_coeffs(distortion_coeffs);
-  #endif
-  
+#ifdef obsensor
+  obs.get_rgb_intrinsics(color_intrinsics);
+  obs.get_rgb_distortion_coeffs(distortion_coeffs);
+#endif
+
   cv::Mat cameraMatrix =
       (cv::Mat_<double>(3, 3) << color_intrinsics[0], 0, color_intrinsics[2], 0,
        color_intrinsics[1], color_intrinsics[3], 0, 0, 1);
@@ -433,7 +435,8 @@ void EyeInHandCalibration::vector2matrix(cv::Mat& rvec, cv::Mat& rmatrix) {
   return;
 }
 
-void EyeInHandCalibration::get_calibration_result(cv::Mat& rotation, cv::Mat& translation){
+void EyeInHandCalibration::get_calibration_result(cv::Mat& rotation,
+                                                  cv::Mat& translation) {
   rotation = calibration_rotation_;
   translation = calibration_translation_;
   return;

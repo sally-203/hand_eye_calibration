@@ -51,7 +51,7 @@ include_directories(
 
 link_libraries(${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so)
 
-add_library(EyeInHandCalibrationCommon SHARED src/calibration.cpp)
+add_library(EyeInHandCalibrationCommon SHARED src/calibration_in_hand.cpp)
 
 target_link_libraries(EyeInHandCalibrationCommon ${PCL_LIBRARIES} 
                                         ${OpenCV_LIBRARIES}
@@ -60,7 +60,7 @@ target_link_libraries(EyeInHandCalibrationCommon ${PCL_LIBRARIES}
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/lib/libaruco.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/lib/libcnpy.so)
 
-add_executable(test_calibration test/test_calibration.cpp)
-target_link_libraries(test_calibration EyeInHandCalibrationCommon)
+add_executable(test_calibration_in_hand test/test_calibration_in_hand.cpp)
+target_link_libraries(test_calibration_in_hand EyeInHandCalibrationCommon)
 
 
