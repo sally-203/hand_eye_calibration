@@ -39,3 +39,9 @@ build/
 
 # cache dir
 .cache/
+
+# picture path
+picture/
+
+# specific file
+手眼标定.md
