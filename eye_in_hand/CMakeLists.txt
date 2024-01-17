@@ -1,6 +1,21 @@
 PROJECT(eye_in_hand)
 option(realsense "realsense" off)
 option(obsensor "obsensor" on)
+option(ur "ur" off)
+option(flexiv "flexiv" on)
+
+if(${obsensor})
+    add_compile_definitions(CAMERA_ON=0x1000)
+endif()
+if(${realsense})
+    add_compile_definitions(CAMEARE_ON=0x0100)
+endif()
+if(${ur})
+    add_compile_definitions(ROBOT_ON=0x1000)
+endif()
+if(${flexiv})
+    add_compile_definitions(ROBOT_ON=0x0100)
+endif()
 
 set(CONTROL_INTERFACE_PATH "/home/xlh/work/projects/control_interface/control_interface")
 SET(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -pthread")
@@ -23,6 +38,14 @@ if(OpenCV_FOUND)
     message(STATUS "OpenCV FOUND!")
 endif()
 
+if(flexiv)
+    message("--------------- open flexiv")
+endif()
+
+if(ur)
+    message("\n--------------- open ur\n")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "/home/xlh/work/projects/control_interface/control_interface/cmake/deps")
 
 if(realsense)
@@ -32,7 +55,7 @@ if(realsense)
     link_libraries(${RealsenseSDK_LIBRARIES})
 endif()
 if(obsensor)  
-    message("--------------- open obsensor")
+    message("\n--------------- open obsensor\n")
     find_package(ObsensorSDK REQUIRED)
     include_directories(${ObsensorSDK_INCLUDE_DIRS})
     link_libraries(${ObsensorSDK_LIBRARIES})
@@ -47,6 +70,10 @@ include_directories(
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/include
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/include/fractallabelers
     ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/include
+    ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/include
+    ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/3rdParties/flexiv/include
+    ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/3rdParties/fmt/include
+    ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/3rdParties/ftpclient/FTP
 )
 
 link_libraries(${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so)
@@ -56,6 +83,7 @@ add_library(EyeInHandCalibrationCommon SHARED src/calibration_in_hand.cpp)
 target_link_libraries(EyeInHandCalibrationCommon ${PCL_LIBRARIES} 
                                         ${OpenCV_LIBRARIES}
                                         ${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so
+                                        ${CONTROL_INTERFACE_PATH}/build/driver/robot/flexiv/libFlexivCommon.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/ur_rtde/lib/librtde.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/lib/libaruco.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/lib/libcnpy.so)
