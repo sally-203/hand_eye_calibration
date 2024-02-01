@@ -42,6 +42,24 @@ EyeInHandCalibration::EyeInHandCalibration(double init_marker_size,
 }
 #endif
 
+#if ROBOT_ON == 0x0010
+EyeInHandCalibration::EyeInHandCalibration(double init_marker_size,
+    std::string init_ip, std::string local_ip)
+    : marker_size(init_marker_size)
+    , rokae_(init_ip, local_ip)
+{
+    // open camera
+
+#if CAMERA_ON == 0x0100
+    rs.StartCamera();
+#endif
+
+#if CAMERA_ON == 0x1000
+    obs.StartCamera();
+#endif
+}
+#endif
+
 EyeInHandCalibration::~EyeInHandCalibration()
 {
 #if CAMERA_ON == 0x0100
@@ -64,7 +82,13 @@ void EyeInHandCalibration::AddRobotPose()
 
 #if ROBOT_ON == 0x0100
     std::vector<double> temp;
-    flexiv_.get_tcp_position(temp);
+    flexiv_.get_flange_position(temp);
+    quater2rotvec(temp, pose);
+#endif
+
+#if ROBOT_ON == 0x0010
+    std::vector<double> temp;
+    rokae_.get_flange_position(temp);
     quater2rotvec(temp, pose);
 #endif
 
@@ -265,7 +289,15 @@ void EyeInHandCalibration::AddPositions()
 
 #if ROBOT_ON == 0x0100
     std::vector<double> temp;
-    flexiv_.get_tcp_position(temp);
+    flexiv_.get_flange_position(temp);
+    quater2rotvec(temp, current_pose);
+    std::cout << "current pose in AddPositions(): " << temp[0] << " " << temp[1] << " " << temp[2] << " "
+              << temp[3] << " " << temp[4] << " " << temp[5] << " " << temp[6] << std::endl;
+#endif
+
+#if ROBOT_ON == 0x0010
+    std::vector<double> temp;
+    rokae_.get_flange_position(temp);
     quater2rotvec(temp, current_pose);
     std::cout << "current pose in AddPositions(): " << temp[0] << " " << temp[1] << " " << temp[2] << " "
               << temp[3] << " " << temp[4] << " " << temp[5] << " " << temp[6] << std::endl;
@@ -324,16 +356,28 @@ void EyeInHandCalibration::RunCalibration()
     // std::vector<double> target { -0.0168301, -0.197702, 0.553713,
     //     2.61059, -0.986714, -0.047228 };
 
-    // flexiv
-    std::vector<double> target { -0.143252, -0.67068, 0.674063, 0.898995, -0.434298, -0.0421821, 0.0376029};
+    // flexiv in dachang polish
+    // std::vector<double> target{0.502898, -0.114158, 0.802329, 0.00404465, 0.999991, -0.000621101, 0.00142452};
 
+    // ur in laser cleaning
+    // std::vector<double> target { -0.126242, -0.512402, 0.530449, 2.14863, 2.17271, -0.24792 };
+
+    // rokae in cleaning
+    // std::vector<double> target { 0.91284, 0.286681, 0.422514, 0.0154442, 0.986669, -0.161797, 0.00819305 };
 #if ROBOT_ON == 0x1000
+    // rtde_receive_.getActualTCPPose();
     rtde_control_.moveL(target, 0.01);
 #endif
 
 #if ROBOT_ON == 0x0100
     flexiv_.FTZeroSensor();
-    flexiv_.moveL(target, 0.01);
+    flexiv_.goHome();
+    // flexiv_.moveL(target, 0.01);
+#endif
+
+#if ROBOT_ON == 0x0010
+    // rokae_.goHome();
+    rokae_.moveL(target, 0.01);
 #endif
 
     AddPositions();
@@ -361,6 +405,16 @@ void EyeInHandCalibration::RunCalibration()
         std::cout << "temp: " << temp[0] << " " << temp[1] << " " << temp[2] << " "
                   << temp[3] << " " << temp[4] << " " << temp[5] << " " << temp[6] << std::endl;
         flexiv_.moveL(temp, 0.01);
+#endif
+
+#if ROBOT_ON == 0x0010
+        std::vector<double> temp;
+        rotvec2quater(positions[i], temp);
+        std::cout << "positions[i]: " << positions[i][0] << " " << positions[i][1] << " " << positions[i][2] << " "
+                  << positions[i][3] << " " << positions[i][4] << " " << positions[i][5] << std::endl;
+        std::cout << "temp: " << temp[0] << " " << temp[1] << " " << temp[2] << " "
+                  << temp[3] << " " << temp[4] << " " << temp[5] << " " << temp[6] << std::endl;
+        rokae_.moveL(temp, 0.01);
 #endif
 
         AddCameraPose();
@@ -474,6 +528,12 @@ void EyeInHandCalibration::RunCalibration2()
         flexiv_.moveL(temp, 0.01);
 #endif
 
+#if ROBOT_ON == 0X0010
+        std::vector<double> temp;
+        rotvec2quater(position[i], temp);
+        rokae_.moveL(temp, 0.01);
+#endif
+
         AddCameraPose();
         AddRobotPose();
         if (camera_rotation_.size() < robot_rotation_.size()) {
@@ -510,8 +570,13 @@ bool EyeInHandCalibration::TeachMode()
 
 #if ROBOT_ON == 0x0100
     flexiv_.startFreeDrive();
-    return true;
 #endif
+
+#if ROBOT_ON == 0x0010
+    rokae_.startFreeDrive();
+#endif
+
+    return true;
 }
 
 bool EyeInHandCalibration::EndTeachMode()
@@ -529,8 +594,9 @@ bool EyeInHandCalibration::EndTeachMode()
 
 #if ROBOT_ON == 0x0100
     flexiv_.stopFreeDrive();
-    return true;
 #endif
+
+    return true;
 }
 
 void EyeInHandCalibration::vector2matrix(cv::Mat& rvec, cv::Mat& rmatrix)
@@ -592,6 +658,24 @@ void EyeInHandCalibration::get_calibration_result(cv::Mat& rotation,
     rotation = calibration_rotation_;
     translation = calibration_translation_;
     return;
+}
+
+void EyeInHandCalibration::getjoint(std::vector<double>& joints)
+{
+#if ROBOT_ON == 0x0100
+    flexiv_.get_joints_position(joints);
+    return;
+#endif
+
+#if ROBOT_ON == 0X1000
+    joints = rtde_receive_.getActualQ();
+    return;
+#endif
+
+#if ROBOT_ON == 0x0010
+    rokae_.get_current_joints(joints);
+    return;
+#endif
 }
 
 } // namespace calibration

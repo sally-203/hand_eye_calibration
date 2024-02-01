@@ -31,6 +31,7 @@
 #include "log_wrapper.h"
 
 #include "flexiv.h"
+#include "rokae.hpp"
 
 #if CAMERA_ON == 0x1000
 #include "obsensor.h"
@@ -56,7 +57,13 @@ public:
     EyeInHandCalibration(double init_marker_size, std::string init_ip, std::string local_ip);
 #endif
 
+#if ROBOT_ON == 0X0010
+    EyeInHandCalibration(double init_marker_size, std::string init_ip, std::string local_ip);
+#endif
+
     ~EyeInHandCalibration();
+
+    void getjoint(std::vector<double>& joints);
 
     ///\brief add robot pose expressed in the gripper frame to the robot base frame
     void AddRobotPose();
@@ -108,6 +115,7 @@ private:
     ///\param delta: euler delta
     std::vector<double> update(const std::vector<double>& current_pose,
         Eigen::Vector3d& delta);
+
 #ifdef realsense
     driver::Realsense rs;
 #endif
@@ -129,6 +137,11 @@ private:
 #if ROBOT_ON == 0X0100
     driver::Flexiv flexiv_;
 #endif
+
+#if ROBOT_ON == 0X0010
+    driver::Rokae rokae_;
+#endif
+
     std::vector<double> current_pose_;
     std::vector<cv::Mat> robot_rotation_;
     std::vector<cv::Mat> robot_translation_;

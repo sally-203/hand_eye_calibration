@@ -2,7 +2,8 @@ PROJECT(eye_in_hand)
 option(realsense "realsense" off)
 option(obsensor "obsensor" on)
 option(ur "ur" off)
-option(flexiv "flexiv" on)
+option(flexiv "flexiv" off)
+option(rokae "rokae" on)
 
 if(${obsensor})
     add_compile_definitions(CAMERA_ON=0x1000)
@@ -15,6 +16,9 @@ if(${ur})
 endif()
 if(${flexiv})
     add_compile_definitions(ROBOT_ON=0x0100)
+endif()
+if(${rokae})
+    add_compile_definitions(ROBOT_ON=0X0010)
 endif()
 
 set(CONTROL_INTERFACE_PATH "/home/xlh/work/projects/control_interface/control_interface")
@@ -46,6 +50,10 @@ if(ur)
     message("\n--------------- open ur\n")
 endif()
 
+if(rokae)
+    message("\n--------------- open rokae\n")
+endif()
+
 list(APPEND CMAKE_MODULE_PATH "/home/xlh/work/projects/control_interface/control_interface/cmake/deps")
 
 if(realsense)
@@ -74,6 +82,8 @@ include_directories(
     ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/3rdParties/flexiv/include
     ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/3rdParties/fmt/include
     ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/3rdParties/ftpclient/FTP
+    ${CONTROL_INTERFACE_PATH}/driver/robot/rokae/include
+    ${CONTROL_INTERFACE_PATH}/driver/robot/rokae/3rdParties/xCoreSDK/include
 )
 
 link_libraries(${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so)
@@ -83,12 +93,16 @@ add_library(EyeInHandCalibrationCommon SHARED src/calibration_in_hand.cpp)
 target_link_libraries(EyeInHandCalibrationCommon ${PCL_LIBRARIES} 
                                         ${OpenCV_LIBRARIES}
                                         ${CONTROL_INTERFACE_PATH}/build/util/libloggerWrapper.so
-                                        ${CONTROL_INTERFACE_PATH}/build/driver/robot/flexiv/libFlexivCommon.so
+                                        ${CONTROL_INTERFACE_PATH}/driver/robot/flexiv/lib/libFlexivCommon.so
+                                        ${CONTROL_INTERFACE_PATH}/driver/robot/rokae/lib/libRokaeCommon.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/ur_rtde/lib/librtde.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/aruco/lib/libaruco.so
                                         ${CMAKE_CURRENT_SOURCE_DIR}/../3rdParties/cnpy/lib/libcnpy.so)
 
 add_executable(test_calibration_in_hand test/test_calibration_in_hand.cpp)
 target_link_libraries(test_calibration_in_hand EyeInHandCalibrationCommon)
+
+add_executable(freedriver test/freedriver.cpp)
+target_link_libraries(freedriver EyeInHandCalibrationCommon)
 
 
